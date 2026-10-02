@@ -403,6 +403,7 @@ docs/
 
 - [Decodo Forum Scraper](https://github.com/Decodo/Forum-scraper)
 - [Decodo Stack Overflow Trends Monitor](https://github.com/Decodo/stackoverflow-trends-monitor)
+- [Decodo Hacker News Research](https://github.com/Decodo/hackernews-research)
 - [Decodo Web Scraping API](https://github.com/Decodo/Web-Scraping-API)
 - [Decodo SDK for TypeScript](https://github.com/Decodo/sdk-ts)
 - [Decodo MCP Server](https://github.com/Decodo/mcp-server)
