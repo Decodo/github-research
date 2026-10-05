@@ -25,6 +25,7 @@ export class DecodoService {
         Accept: 'application/json',
         'Content-Type': 'application/json',
         Authorization: `Basic ${config.decodoAuthToken}`,
+        'x-integration': 'oss-github-research',
       },
       body: JSON.stringify({
         target: 'universal',
