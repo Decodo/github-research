@@ -50,7 +50,7 @@ export class SettingsService {
       model: doc?.model || envLlm.model || '',
       // API keys: always from env only, never from DB
       decodoAuthToken: envDecodo.authToken || '',
-      decodoScraperEndpoint: envDecodo.scraperEndpoint || 'https://scraper-api.decodo.com/v2/scrape',
+      decodoScraperEndpoint: envDecodo.scraperEndpoint || 'https://data.decodo.com/v1/scrape',
       anthropicApiKey: envLlm.anthropicApiKey || '',
       openaiApiKey: envLlm.openaiApiKey || '',
       geminiApiKey: envLlm.geminiApiKey || '',

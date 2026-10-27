@@ -1,12 +1,12 @@
 # GitHub Research architecture
 
-GitHub Research uses a React frontend, NestJS backend, MongoDB persistence, Decodo Web Scraping API retrieval, deterministic GitHub parsing, and LLM-generated analysis.
+GitHub Research uses a React frontend, NestJS backend, MongoDB persistence, Decodo Web Data API retrieval, deterministic GitHub parsing, and LLM-generated analysis.
 
 ## Pipeline
 
 1. The frontend submits one of three research configurations: Trending, Emerging, or Keyword research.
 2. `GithubUrlService` converts the configuration into GitHub Trending or repository-search URLs.
-3. `DecodoService` requests those public GitHub pages through Decodo Web Scraping API with `proxy_pool: "premium"` and `headless: "html"`.
+3. `DecodoService` requests those public GitHub pages through Decodo Web Data API with `proxy_pool: "premium"` and `headless: "html"`.
 4. `GithubParserService` deterministically converts GitHub HTML / embedded search JSON into normalized repository snapshots.
 5. `ResearchService` retrieves relevant stored runs, passes structured current and historical snapshots to the selected LLM, and saves the resulting report in MongoDB.
 6. Recurring monitors reuse the same research pipeline on a schedule.

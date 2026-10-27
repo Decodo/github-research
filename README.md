@@ -6,10 +6,10 @@
 ![License](https://img.shields.io/badge/license-MIT-green)
 
 <p align="center">
-  <a href="https://dashboard.decodo.com/scrapers/pricing?utm_source=github&utm_medium=social&utm_campaign=github-research"><img src="https://github.com/user-attachments/assets/13b08523-32b0-4c85-8e99-580d7c2a9055" alt="Decodo Web Scraping API" /></a>
+  <a href="https://decodo.com/web-data-api?utm_source=github&utm_medium=social&utm_campaign=github-research"><img src="https://github.com/user-attachments/assets/13b08523-32b0-4c85-8e99-580d7c2a9055" alt="Decodo Web Data API" /></a>
 </p>
 
-**GitHub Research** is an open-source tool for researching GitHub trending repositories, newly emerging projects, and keyword-driven repository activity. It uses Decodo's [Web Scraping API](https://decodo.com/scraping/web) to retrieve public GitHub pages and your chosen LLM provider to turn normalized repository data into structured research reports.
+**GitHub Research** is an open-source tool for researching GitHub trending repositories, newly emerging projects, and keyword-driven repository activity. It uses Decodo's [Web Data API](https://decodo.com/web-data-api) to retrieve public GitHub pages and your chosen LLM provider to turn normalized repository data into structured research reports.
 
 Unlike leaderboard-style trending trackers, GitHub Research can start from a keyword or concept and return recurring themes, notable repositories, and historical changes instead of only a ranked list.
 
@@ -49,13 +49,13 @@ GitHub Research turns public repository activity into a structured research repo
 
 1. **Choose a research mode.** Select Trending, Emerging, or Keyword and configure the relevant filters.
 2. **Build the GitHub research request.** The backend converts the configuration into GitHub Trending or repository-search URLs.
-3. **Retrieve public GitHub pages.** [Decodo Web Scraping API](https://decodo.com/scraping/web) retrieves the page HTML used for the research run.
+3. **Retrieve public GitHub pages.** [Decodo Web Data API](https://decodo.com/web-data-api) retrieves the page HTML used for the research run.
 4. **Normalize repository data.** Deterministic parsers extract repository metadata into a shared repository-snapshot format.
 5. **Generate the research report.** Your selected LLM provider receives the normalized current dataset, deterministic metrics, and relevant previous snapshots to produce themes and notable findings.
 6. **Store the run.** MongoDB stores the configuration, repository snapshots, and generated report for History and later comparisons.
 7. **Review or export the result.** Open the report in the UI or download it as Markdown or JSON.
 
-The current research flow does **not** use the GitHub REST API as its data source. It retrieves public GitHub pages through Decodo Web Scraping API.
+The current research flow does **not** use the GitHub REST API as its data source. It retrieves public GitHub pages through Decodo Web Data API.
 
 ## Prerequisites
 
@@ -63,7 +63,7 @@ Before installing the project, make sure you have:
 
 - [Bun](https://bun.sh) 1.2.5 or newer
 - [Docker](https://docker.com) or another Docker-compatible runtime
-- A Decodo Web Scraping API Basic Auth token – [create a Decodo account](https://dashboard.decodo.com/register?page=scrapers/pricing)
+- A Decodo Web Data API key – [create a Decodo account](https://dashboard.decodo.com/register)
 - At least one supported LLM provider API key:
   - Anthropic
   - OpenAI
@@ -104,7 +104,7 @@ Files beginning with a dot may be hidden by default. If you don't see `.env` in 
 - On most Linux file managers, press **Ctrl**+**H**
 - On Windows, use **View** → **Show** → **Hidden items** if needed
 
-Open `.env` and add your Decodo token, select an LLM provider, and add the API key for that provider.
+Open `.env` and add your Decodo Web Data API key, select an LLM provider, and add the API key for that provider.
 
 ```env
 # Backend
@@ -116,10 +116,10 @@ PUBLIC_FRONTEND_URL=http://localhost:5274
 MONGO_PORT=27018
 MONGODB_URI=mongodb://localhost:27018/github-research
 
-# Decodo Web Scraping API
-# Paste the Basic Auth token only, without the word "Basic".
+# Decodo Web Data API
+# Paste your Web Data API key only, without the "Bearer" prefix.
 DECODO_AUTH_TOKEN=
-DECODO_SCRAPER_ENDPOINT=https://scraper-api.decodo.com/v2/scrape
+DECODO_SCRAPER_ENDPOINT=https://data.decodo.com/v1/scrape
 
 # LLM provider: claude | openai | gemini
 LLM_PROVIDER=claude
@@ -131,6 +131,8 @@ GEMINI_API_KEY=
 ```
 
 Only the API key for the selected `LLM_PROVIDER` is required. `LLM_MODEL` is optional and can be left empty to use the provider default configured by the application.
+
+> **Upgrading from Web Scraping API?** Replace the old Basic Auth token in `DECODO_AUTH_TOKEN` with a new Web Data API key. The environment variable name stays the same for compatibility. If your existing `.env` explicitly sets `DECODO_SCRAPER_ENDPOINT`, also change it to `https://data.decodo.com/v1/scrape`. Old Basic Auth tokens won't work with the new endpoint. See the [migration guide](https://help.decodo.com/docs/web-data-api-migration-guide).
 
 ### 4. Start MongoDB
 
@@ -258,7 +260,7 @@ The comparison describes each product's main workflow. These tools solve overlap
 | `PUBLIC_FRONTEND_URL` | Frontend URL used by the application |
 | `MONGO_PORT` | Host port mapped to the MongoDB container |
 | `MONGODB_URI` | MongoDB connection string |
-| `DECODO_AUTH_TOKEN` | Decodo Web Scraping API Basic Auth token, without the `Basic` prefix |
+| `DECODO_AUTH_TOKEN` | Decodo Web Data API key, without the `Bearer` prefix |
 | `DECODO_SCRAPER_ENDPOINT` | Decodo scraping endpoint. The included default is normally sufficient |
 | `LLM_PROVIDER` | LLM provider: `claude`, `openai`, or `gemini` |
 | `LLM_MODEL` | Optional model override |
@@ -266,7 +268,7 @@ The comparison describes each product's main workflow. These tools solve overlap
 | `OPENAI_API_KEY` | OpenAI API key |
 | `GEMINI_API_KEY` | Google Gemini API key |
 
-The **Settings** page can change the active LLM provider and optional model override. API keys and the Decodo token remain environment variables and are never returned by the settings API.
+The **Settings** page can change the active LLM provider and optional model override. API keys, including the Decodo Web Data API key, remain environment variables and are never returned by the settings API.
 
 ### Research filters
 
@@ -327,9 +329,9 @@ GitHub Trending provides a ranked view of repositories attracting attention for 
 
 Keyword mode runs a current GitHub repository search for the supplied term and analyzes repository metadata such as descriptions, topics, languages, and stars. If you select a 7-day, 30-day, or 90-day recent window, the tool also retrieves repositories created during that period and adds them to the broader current landscape.
 
-### Does GitHub Research use the GitHub API or Decodo Web Scraping API?
+### Does GitHub Research use the GitHub API or Decodo Web Data API?
 
-The current research flow uses [Decodo Web Scraping API](https://decodo.com/scraping/web), not the GitHub REST API, to retrieve public GitHub pages. The backend then parses the returned HTML into normalized repository snapshots before passing structured data, deterministic facts, and relevant historical snapshots to the selected LLM provider.
+The current research flow uses [Decodo Web Data API](https://decodo.com/web-data-api), not the GitHub REST API, to retrieve public GitHub pages. The backend then parses the returned HTML into normalized repository snapshots before passing structured data, deterministic facts, and relevant historical snapshots to the selected LLM provider.
 
 ### What are GitHub's API rate limits, and how does this tool handle them?
 
@@ -337,7 +339,7 @@ GitHub documents a primary REST API limit of **60 requests per hour for unauthen
 
 ### Do I need a Decodo account?
 
-Yes. GitHub Research retrieves its GitHub source pages through Decodo Web Scraping API, so you need a [Decodo account](https://dashboard.decodo.com/) and a valid Web Scraping API authentication token. The token is supplied through `DECODO_AUTH_TOKEN` in your local `.env` file and is not exposed by the application's Settings API.
+Yes. GitHub Research retrieves its GitHub source pages through Decodo Web Data API, so you need a [Decodo account](https://dashboard.decodo.com/) and a valid Web Data API key. The API key is supplied through `DECODO_AUTH_TOKEN` in your local `.env` file and is not exposed by the application's Settings API.
 
 ### Is GitHub Research affiliated with GitHub, Inc.?
 
@@ -353,7 +355,7 @@ Yes. GitHub Research is designed to run locally or on an always-on host with Bun
 | --- | --- |
 | Frontend | React 19, TanStack Router, TanStack Query, Tailwind CSS v4, Radix UI, Rsbuild |
 | Backend | NestJS 11, MongoDB, Mongoose |
-| GitHub retrieval | Decodo Web Scraping API |
+| GitHub retrieval | Decodo Web Data API |
 | Parsing | Cheerio and deterministic GitHub parsers |
 | LLMs | Anthropic Claude, OpenAI GPT, Google Gemini |
 | Runtime | Bun |
@@ -367,7 +369,7 @@ Yes. GitHub Research is designed to run locally or on an always-on host with Bun
 
 apps/
   backend/src/features/
-    decodo/             # Decodo Web Scraping API integration
+    decodo/             # Decodo Web Data API integration
     github/             # GitHub URL builders and HTML parsers
     research/           # Research execution, analysis, and reporting
     monitors/           # Saved schedules and recurring execution
@@ -404,12 +406,12 @@ docs/
 - [Decodo Forum Scraper](https://github.com/Decodo/Forum-scraper)
 - [Decodo Stack Overflow Trends Monitor](https://github.com/Decodo/stackoverflow-trends-monitor)
 - [Decodo Hacker News Research](https://github.com/Decodo/hackernews-research)
-- [Decodo Web Scraping API](https://github.com/Decodo/Web-Scraping-API)
+- [Decodo scraping examples (legacy repository)](https://github.com/Decodo/Web-Scraping-API)
 - [Decodo SDK for TypeScript](https://github.com/Decodo/sdk-ts)
 - [Decodo MCP Server](https://github.com/Decodo/mcp-server)
 - [Decodo OpenClaw Skill](https://github.com/Decodo/decodo-openclaw-skill)
 
-For Web Scraping API targets, parameters, and request behavior, see the [Decodo Web Scraping API documentation](https://help.decodo.com/docs/web-scraping-api-introduction).
+For Web Data API targets, parameters, and request behavior, see the [Decodo Web Data API documentation](https://help.decodo.com/docs/web-data-api-introduction).
 
 ## License
 

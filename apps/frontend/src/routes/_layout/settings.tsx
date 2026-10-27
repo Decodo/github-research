@@ -242,7 +242,7 @@ function SettingsPage() {
             isLoading={isLoading}
           />
           <KeyRow
-            label="Decodo residential Web Scraping API token"
+            label="Decodo Web Data API key (DECODO_AUTH_TOKEN)"
             isSet={status?.decodoKeySet}
             isLoading={isLoading}
           />
