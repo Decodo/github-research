@@ -24,7 +24,7 @@ export class DecodoService {
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
-        Authorization: `Basic ${config.decodoAuthToken}`,
+        Authorization: `Bearer ${config.decodoAuthToken}`,
         'x-integration': 'oss-github-research',
       },
       body: JSON.stringify({
@@ -37,7 +37,7 @@ export class DecodoService {
 
     const text = await response.text();
     if (!response.ok) {
-      throw new ServiceUnavailableException(`Decodo Web Scraping API returned ${response.status}: ${text.slice(0, 300)}`);
+      throw new ServiceUnavailableException(`Decodo Web Data API returned ${response.status}: ${text.slice(0, 300)}`);
     }
 
     let payload: unknown = text;
@@ -45,7 +45,7 @@ export class DecodoService {
     const html = this.extractHtml(payload);
     if (!html) throw new ServiceUnavailableException('Decodo response did not contain HTML.');
 
-    this.logger.log(`Scraped ${url} via Web Scraping API · ${html.length.toLocaleString()} chars`);
+    this.logger.log(`Scraped ${url} via Web Data API · ${html.length.toLocaleString()} chars`);
     return html;
   }
 

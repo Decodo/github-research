@@ -3,7 +3,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import type { ResearchProgressStage } from '../api/useTrackerApi';
 
 const steps: Array<{ stage: ResearchProgressStage; icon: typeof Search; title: string; detail: string }> = [
-  { stage: 'researching', icon: Search, title: 'Researching GitHub', detail: 'Fetching repository data through Decodo Web Scraping API' },
+  { stage: 'researching', icon: Search, title: 'Researching GitHub', detail: 'Fetching repository data through Decodo Web Data API' },
   { stage: 'structuring', icon: Database, title: 'Structuring repository data', detail: 'Parsing stars, languages, topics, forks, and activity signals' },
   { stage: 'analyzing', icon: Sparkles, title: 'Analyzing trends', detail: 'Generating themes and repository insights with the configured LLM' },
 ];
