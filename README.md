@@ -6,7 +6,7 @@
 ![License](https://img.shields.io/badge/license-MIT-green)
 
 <p align="center">
-  <a href="https://decodo.com/web-data-api?utm_source=github&utm_medium=social&utm_campaign=github-research"><img src="https://github.com/user-attachments/assets/13b08523-32b0-4c85-8e99-580d7c2a9055" alt="Decodo Web Data API" /></a>
+  <a href="https://dashboard.decodo.com/web-data/pricing?utm_source=github&utm_medium=social&utm_campaign=github-research"><img src="https://github.com/user-attachments/assets/233d4e4e-8f64-4179-a32e-a4b9cf78137f" alt="Decodo Web Data API" /></a>
 </p>
 
 **GitHub Research** is an open-source tool for researching GitHub trending repositories, newly emerging projects, and keyword-driven repository activity. It uses Decodo's [Web Data API](https://decodo.com/web-data-api) to retrieve public GitHub pages and your chosen LLM provider to turn normalized repository data into structured research reports.
@@ -131,8 +131,6 @@ GEMINI_API_KEY=
 ```
 
 Only the API key for the selected `LLM_PROVIDER` is required. `LLM_MODEL` is optional and can be left empty to use the provider default configured by the application.
-
-> **Upgrading from Web Scraping API?** Replace the old Basic Auth token in `DECODO_AUTH_TOKEN` with a new Web Data API key. The environment variable name stays the same for compatibility. If your existing `.env` explicitly sets `DECODO_SCRAPER_ENDPOINT`, also change it to `https://data.decodo.com/v1/scrape`. Old Basic Auth tokens won't work with the new endpoint. See the [migration guide](https://help.decodo.com/docs/web-data-api-migration-guide).
 
 ### 4. Start MongoDB
 
