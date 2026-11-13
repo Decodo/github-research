@@ -12,7 +12,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
-import { AlertTriangle, CheckCircle, Circle, Save } from 'lucide-react';
+import { AlertTriangle, CheckCircle, Circle, Save, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import {
   useSettingsQuery,
@@ -74,6 +74,7 @@ function SettingsPage() {
   // cascade renders and trip `react-hooks/set-state-in-effect`.
   const [provider, setProvider] = useState<Provider>('claude');
   const [model, setModel] = useState('');
+  const [webDataApiKey, setWebDataApiKey] = useState('');
   const [syncedStatus, setSyncedStatus] = useState<typeof status | null>(null);
 
   if (status && status !== syncedStatus) {
@@ -105,13 +106,36 @@ function SettingsPage() {
     );
   };
 
+  const handleSaveWebDataKey = () => {
+    updateMutation.mutate(
+      { webDataApiKey: webDataApiKey.trim() },
+      {
+        onSuccess: () => {
+          setWebDataApiKey('');
+          toast.success('Web Data API key saved');
+        },
+        onError: () => toast.error('Failed to save Web Data API key'),
+      },
+    );
+  };
+
+  const handleClearWebDataKey = () => {
+    updateMutation.mutate(
+      { clearWebDataApiKey: true },
+      {
+        onSuccess: () => toast.success('Saved Web Data API key cleared'),
+        onError: () => toast.error('Failed to clear Web Data API key'),
+      },
+    );
+  };
+
   return (
     <div className="py-6 space-y-6 max-w-xl">
       <div>
         <h1 className="text-2xl font-semibold">Settings</h1>
         <p className="text-sm text-muted-foreground mt-1">
-          Choose your LLM provider. API keys are configured via{' '}
-          <code className="font-mono">.env</code> on the server.
+          Choose an LLM provider and configure your Web Data API key. LLM provider keys
+          remain server environment variables.
         </p>
       </div>
 
@@ -122,8 +146,8 @@ function SettingsPage() {
             <div className="flex items-start gap-2 rounded-md border border-yellow-300 bg-yellow-50 px-3 py-2.5 text-sm text-yellow-800 dark:border-yellow-800 dark:bg-yellow-950/30 dark:text-yellow-400">
               <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
               <span>
-                <code className="font-mono">DECODO_AUTH_TOKEN</code> is not set in your{' '}
-                <code className="font-mono">.env</code> — scraping won't work.
+                Web Data API key is missing. Add it below or set{' '}
+                <code className="font-mono">DECODO_WEB_DATA_API_KEY</code> in your environment.
               </span>
             </div>
           )}
@@ -216,13 +240,68 @@ function SettingsPage() {
         </CardContent>
       </Card>
 
-      {/* Key status */}
+      {/* Web Data API credential */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">API Keys</CardTitle>
+          <CardTitle className="text-base">Decodo Web Data API</CardTitle>
           <CardDescription>
-            Set via environment variables in your <code className="font-mono text-xs">.env</code>.
-            Keys are never stored in the database.
+            Enter your Web Data API key here or configure{' '}
+            <code className="font-mono text-xs">DECODO_WEB_DATA_API_KEY</code> on the server.
+            Keys entered here are saved locally on the backend, never returned by the API.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <KeyRow
+            label={`Web Data API key (${status?.decodoKeySource === 'interface' ? 'saved in Settings' : status?.decodoKeySource === 'environment' ? 'environment variable' : 'not configured'})`}
+            isSet={status?.decodoKeySet}
+            isLoading={isLoading}
+          />
+          <div className="space-y-1.5">
+            <Label htmlFor="web-data-api-key">Web Data API key</Label>
+            <Input
+              id="web-data-api-key"
+              type="password"
+              autoComplete="off"
+              value={webDataApiKey}
+              onChange={(e) => setWebDataApiKey(e.target.value)}
+              placeholder={status?.decodoKeySet ? 'Enter a replacement key' : 'Paste your Web Data API key'}
+              disabled={isLoading || updateMutation.isPending}
+            />
+            <p className="text-xs text-muted-foreground">
+              Your existing key is never displayed. A key saved here overrides the environment variable.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Button
+              onClick={handleSaveWebDataKey}
+              disabled={!webDataApiKey.trim() || updateMutation.isPending || isLoading}
+              size="sm"
+            >
+              <Save className="mr-2 h-3.5 w-3.5" />
+              {updateMutation.isPending ? 'Saving…' : 'Save Web Data API key'}
+            </Button>
+            {status?.decodoKeySource === 'interface' && (
+              <Button
+                variant="outline"
+                onClick={handleClearWebDataKey}
+                disabled={updateMutation.isPending}
+                size="sm"
+              >
+                <Trash2 className="mr-2 h-3.5 w-3.5" />
+                Clear saved key
+              </Button>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* LLM key status */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">LLM provider API keys</CardTitle>
+          <CardDescription>
+            Set these through environment variables in your <code className="font-mono text-xs">.env</code>.
+            They are never stored in the database.
           </CardDescription>
         </CardHeader>
         <CardContent className="divide-y">
@@ -239,11 +318,6 @@ function SettingsPage() {
           <KeyRow
             label="Gemini API key (GEMINI_API_KEY)"
             isSet={status?.geminiKeySet}
-            isLoading={isLoading}
-          />
-          <KeyRow
-            label="Decodo Web Data API key (DECODO_AUTH_TOKEN)"
-            isSet={status?.decodoKeySet}
             isLoading={isLoading}
           />
         </CardContent>

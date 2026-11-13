@@ -17,7 +17,7 @@ export class SettingsController {
 
   /**
    * PATCH /settings
-   * Updates provider and/or model preference. API keys cannot be set here.
+   * Updates provider/model preferences and optionally the local Web Data API key.
    */
   @Patch()
   @HttpCode(HttpStatus.OK)
