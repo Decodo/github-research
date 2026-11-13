@@ -24,15 +24,18 @@ export interface RepositorySnapshot {
   stars?: number;
   forks?: number;
   periodStars?: number;
+  createdAt?: string;
   updatedAt?: string;
   observedAt: string;
 }
 
 export interface GithubReport {
   executiveSummary: string;
-  themes: Array<{ title: string; description: string }>;
+  themes: Array<{ title: string; description: string; evidence?: Array<{ repository: string; quote: string }> }>;
   notableRepositories: Array<{ repository: string; reason: string }>;
   longitudinal?: { summary: string; signals: Array<{ signal: string; detail: string }> };
+  attentionSignals?: Array<{ repository: string; url: string; message: string }>;
+  repositoryClusters?: Array<{ term: string; repositories: string[]; count: number }>;
 }
 
 export interface ResearchResult {

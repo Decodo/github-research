@@ -45,6 +45,23 @@ export function ReportView({ result }: { result: ResearchResult }) {
 
     <Card><CardHeader className="pb-2"><div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Research summary</div></CardHeader><CardContent><p className="text-sm leading-6">{report.executiveSummary}</p></CardContent></Card>
 
+    {!!report.attentionSignals?.length && <section className="space-y-3">
+      <h3 className="text-base font-semibold">Standout GitHub signals</h3>
+      {report.attentionSignals.map((signal) => <Card key={signal.repository}><CardContent className="pt-5">
+        <a href={signal.url} target="_blank" rel="noreferrer" className="text-sm font-semibold text-[var(--topic-fg)] hover:underline">{signal.repository}</a>
+        <p className="mt-1.5 text-sm leading-5 text-muted-foreground">{signal.message}</p>
+      </CardContent></Card>)}
+    </section>}
+
+    {!!report.repositoryClusters?.length && <section className="space-y-3">
+      <h3 className="text-base font-semibold">Recurring repository name clusters</h3>
+      <p className="text-xs text-muted-foreground">Repeated terms in names, not evidence of a shared cause or wider adoption.</p>
+      <div className="grid gap-3 md:grid-cols-2">{report.repositoryClusters.map((cluster) => <Card key={cluster.term}><CardContent className="pt-5">
+        <p className="text-sm font-semibold">{cluster.term} · {cluster.count} repositories</p>
+        <p className="mt-1.5 text-xs leading-5 text-muted-foreground">{cluster.repositories.join(', ')}</p>
+      </CardContent></Card>)}</div>
+    </section>}
+
     <div className="grid gap-3 sm:grid-cols-3">
       <Card><CardContent className="pt-5">{plan?.mode === 'trending' ? <><div className="flex items-center gap-2 text-xs text-muted-foreground"><TrendingUp className="h-4 w-4 text-primary" />{periodLabels.mover}</div><p className="mt-2 truncate text-sm font-semibold">{topMover ? `${topMover.owner}/${topMover.name}` : 'Not available'}</p>{topMover?.periodStars !== undefined && <p className="mt-1 text-lg font-semibold text-[var(--success)]">+{topMover.periodStars.toLocaleString()}</p>}</> : <><div className="flex items-center gap-2 text-xs text-muted-foreground"><Star className="h-4 w-4 text-primary" />{plan?.mode === 'emerging' ? 'Highest-starred new repo' : 'Highest-starred repository'}</div><p className="mt-2 truncate text-sm font-semibold">{highestStarred ? `${highestStarred.owner}/${highestStarred.name}` : 'Not available'}</p>{highestStarred?.stars !== undefined && <p className="mt-1 text-lg font-semibold">{highestStarred.stars.toLocaleString()} stars</p>}</>}</CardContent></Card>
       <Card><CardContent className="pt-5"><div className="flex items-center gap-2 text-xs text-muted-foreground"><Star className="h-4 w-4 text-primary" />Repositories analyzed</div><p className="mt-2 text-2xl font-semibold">{repositories.length}</p></CardContent></Card>

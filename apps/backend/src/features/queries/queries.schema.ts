@@ -12,5 +12,9 @@ export class Query {
   @Prop({ type: String, index: true }) monitorId?: string;
   @Prop({ type: String, enum: ['manual', 'scheduled', 'manual-monitor'], default: 'manual' })
   runType: 'manual' | 'scheduled' | 'manual-monitor';
+
+  // Mongoose generates these automatically because timestamps is enabled.
+  declare createdAt: Date;
+  declare updatedAt: Date;
 }
 export const QuerySchema = SchemaFactory.createForClass(Query);

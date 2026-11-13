@@ -1,0 +1,28 @@
+name: Research quality checks
+
+on:
+  pull_request:
+    paths:
+      - 'apps/backend/**'
+      - 'apps/shared/**'
+      - '.github/workflows/research-quality-ci.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - run: bun install --frozen-lockfile
+      - name: Build shared workspace
+        run: bun run --cwd apps/shared build
+      - name: Typecheck backend
+        run: bunx tsc --noEmit -p apps/backend/tsconfig.json
+      - name: Run research regression tests
+        run: bun run --cwd apps/backend test --runInBand --runTestsByPath src/features/research/research-insights.spec.ts src/features/github/github-parser.service.spec.ts

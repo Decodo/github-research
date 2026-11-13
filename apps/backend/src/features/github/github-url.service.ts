@@ -14,6 +14,15 @@ export class GithubUrlService {
     return `https://github.com/search?${new URLSearchParams({ q: terms.join(' '), type: 'repositories' }).toString()}`;
   }
 
+  withSearchPage(url: string, page: number): string {
+    const parsed = new URL(url);
+    if (parsed.hostname !== 'github.com' || parsed.pathname !== '/search') {
+      throw new Error('Pagination is supported only for GitHub repository searches.');
+    }
+    parsed.searchParams.set('p', String(page));
+    return parsed.toString();
+  }
+
   build(config: ResearchConfig): string {
     if (config.mode === 'trending') {
       const language = config.language ? `/${encodeURIComponent(config.language.toLowerCase())}` : '';

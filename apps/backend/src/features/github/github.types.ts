@@ -11,6 +11,7 @@ export interface RepositorySnapshot {
   stars?: number;
   forks?: number;
   periodStars?: number;
+  createdAt?: string;
   updatedAt?: string;
   observedAt: string;
 }
