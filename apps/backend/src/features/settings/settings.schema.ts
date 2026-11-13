@@ -3,7 +3,7 @@ import { HydratedDocument } from 'mongoose';
 
 export type SettingsDocument = HydratedDocument<Settings>;
 
-/** Stores user-selected LLM preferences. API keys are never stored here. */
+/** Stores user-selected LLM preferences. API keys are stored separately. */
 @Schema({ timestamps: true })
 export class Settings {
   /** Always 'global' — only one settings document exists */

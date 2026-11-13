@@ -5,6 +5,7 @@ export interface SettingsStatus {
   provider: string;
   model: string;
   decodoKeySet: boolean;
+  decodoKeySource: 'interface' | 'environment' | 'none';
   anthropicKeySet: boolean;
   openaiKeySet: boolean;
   geminiKeySet: boolean;
@@ -13,6 +14,8 @@ export interface SettingsStatus {
 export interface UpdateProviderInput {
   provider?: string;
   model?: string;
+  webDataApiKey?: string;
+  clearWebDataApiKey?: boolean;
 }
 
 const SETTINGS_KEY = ['settings'] as const;

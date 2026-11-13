@@ -62,7 +62,7 @@ The current research flow does **not** use the GitHub REST API as its data sourc
 Before installing the project, make sure you have:
 
 - [Bun](https://bun.sh) 1.2.5 or newer
-- [Docker](https://docker.com) or another Docker-compatible runtime
+- [Docker Desktop](https://docker.com) with Compose, [Podman Desktop](https://podman-desktop.io/) with Compose, or an existing MongoDB server
 - A Decodo Web Data API key – [create a Decodo account](https://dashboard.decodo.com/register)
 - At least one supported LLM provider API key:
   - Anthropic
@@ -104,7 +104,7 @@ Files beginning with a dot may be hidden by default. If you don't see `.env` in 
 - On most Linux file managers, press **Ctrl**+**H**
 - On Windows, use **View** → **Show** → **Hidden items** if needed
 
-Open `.env` and add your Decodo Web Data API key, select an LLM provider, and add the API key for that provider.
+Open `.env`, select your LLM provider, and add its API key. You can configure the Decodo Web Data API key here or enter it later on the **Settings** page.
 
 ```env
 # Backend
@@ -117,8 +117,8 @@ MONGO_PORT=27018
 MONGODB_URI=mongodb://localhost:27018/github-research
 
 # Decodo Web Data API
-# Paste your Web Data API key only, without the "Bearer" prefix.
-DECODO_AUTH_TOKEN=
+# Optional: paste the key without the "Bearer" prefix, or enter it in Settings.
+DECODO_WEB_DATA_API_KEY=
 DECODO_SCRAPER_ENDPOINT=https://data.decodo.com/v1/scrape
 
 # LLM provider: claude | openai | gemini
@@ -134,13 +134,15 @@ Only the API key for the selected `LLM_PROVIDER` is required. `LLM_MODEL` is opt
 
 ### 4. Start MongoDB
 
-Make sure Docker is running, then start the local MongoDB container:
+Start Docker Desktop or your Podman machine, with Compose support enabled, then start the local MongoDB container:
 
 ```bash
 bun db:up
 ```
 
-If Docker reports that port `27018` is already allocated, another MongoDB container or service is already using that host port. Stop the conflicting service or change both `MONGO_PORT` and the port in `MONGODB_URI`.
+The command automatically detects a running Docker or Podman engine and a compatible Compose provider. You do not need the legacy `docker-compose` command. For Podman Desktop, install the **Compose** extension through **Settings → Resources → Compose → Setup** if it is missing. Use `CONTAINER_RUNTIME=podman bun db:up` to explicitly prefer Podman when both engines are installed. The matching `bun db:down` command stops the container.
+
+If you already have MongoDB running, you can skip `bun db:up` and set `MONGODB_URI` to its connection string. MongoDB remains the required database; the container runtime is interchangeable. If port `27018` is occupied, stop the conflicting service or change `MONGO_PORT` together with `MONGODB_URI`.
 
 ### 5. Build the application
 
@@ -154,7 +156,7 @@ bun run build
 bun dev
 ```
 
-Keep the terminal window open while using the application. Closing it stops the local frontend and backend.
+Keep the terminal window open while using the application. Closing it stops the local frontend and backend. After startup, open **Settings** to save a Web Data API key if you did not configure one in `.env`.
 
 Frontend:
 
@@ -265,11 +267,14 @@ The comparison describes each product's main workflow. These tools solve overlap
 | Variable | Description |
 | --- | --- |
 | `PORT` | Backend port. Defaults to `5002` |
+| `HOST` | Backend bind address. Defaults to `127.0.0.1` for local use |
+| `CONTAINER_RUNTIME` | Optional `podman` or `docker` preference for the database scripts |
+| `GITHUB_RESEARCH_DATA_DIR` | Optional directory for the locally saved Web Data API key; defaults to the backend's `.local` directory |
 | `PUBLIC_API_BASE_URL` | API URL used by the frontend |
 | `PUBLIC_FRONTEND_URL` | Frontend URL used by the application |
 | `MONGO_PORT` | Host port mapped to the MongoDB container |
 | `MONGODB_URI` | MongoDB connection string |
-| `DECODO_AUTH_TOKEN` | Decodo Web Data API key, without the `Bearer` prefix |
+| `DECODO_WEB_DATA_API_KEY` | Optional Decodo Web Data API key, without the `Bearer` prefix. Alternatively save it in Settings. The old `DECODO_AUTH_TOKEN` is supported as a fallback |
 | `DECODO_SCRAPER_ENDPOINT` | Decodo scraping endpoint. The included default is normally sufficient |
 | `GITHUB_METADATA_ENRICH_LIMIT` | Optional maximum repository-page metadata enrichment requests per run (default: 6; maximum: 12; 0 disables) |
 | `LLM_PROVIDER` | LLM provider: `claude`, `openai`, or `gemini` |
@@ -278,7 +283,9 @@ The comparison describes each product's main workflow. These tools solve overlap
 | `OPENAI_API_KEY` | OpenAI API key |
 | `GEMINI_API_KEY` | Google Gemini API key |
 
-The **Settings** page can change the active LLM provider and optional model override. API keys, including the Decodo Web Data API key, remain environment variables and are never returned by the settings API.
+The **Settings** page lets users select their LLM provider/model and enter or replace the **Decodo Web Data API key**. An interface-entered key takes precedence over the environment variable. It is stored in a local, Git-ignored backend file (`apps/backend/.local/web-data-api-key` when using `bun dev`) with restrictive filesystem permissions, not in MongoDB. API responses return only a configured indicator and source; they never return the secret. Clearing the saved key restores the environment-variable fallback. LLM provider keys remain environment variables.
+
+**Security note:** The application defaults to a loopback-only backend (`HOST=127.0.0.1`). The settings API is not an authenticated multi-user secrets manager. For remote deployments, put it behind an authenticated reverse proxy and secure the host and credential file. Back up the local credential file separately if required.
 
 ### Research filters
 
@@ -349,7 +356,7 @@ GitHub documents a primary REST API limit of **60 requests per hour for unauthen
 
 ### Do I need a Decodo account?
 
-Yes. GitHub Research retrieves its GitHub source pages through Decodo Web Data API, so you need a [Decodo account](https://dashboard.decodo.com/) and a valid Web Data API key. The API key is supplied through `DECODO_AUTH_TOKEN` in your local `.env` file and is not exposed by the application's Settings API.
+Yes. GitHub Research retrieves its GitHub source pages through Decodo Web Data API, so you need a [Decodo account](https://dashboard.decodo.com/) and a valid Web Data API key. Set `DECODO_WEB_DATA_API_KEY` in `.env` or enter the key on the Settings page. The earlier `DECODO_AUTH_TOKEN` is still accepted for compatibility. The Settings API never returns the key itself.
 
 ### Is GitHub Research affiliated with GitHub, Inc.?
 
@@ -369,7 +376,7 @@ Yes. GitHub Research is designed to run locally or on an always-on host with Bun
 | Parsing | Cheerio and deterministic GitHub parsers |
 | LLMs | Anthropic Claude, OpenAI GPT, Google Gemini |
 | Runtime | Bun |
-| Local services | Docker Compose, MongoDB |
+| Local services | MongoDB, Docker or Podman with Compose |
 
 ## Project structure
 
@@ -408,7 +415,7 @@ docs/
 | `bun start` | Start the production backend and frontend preview server |
 | `bun lint` | Run linting across frontend and backend |
 | `bun format` | Format frontend and backend source files |
-| `bun db:up` | Start MongoDB through Docker Compose |
+| `bun db:up` | Start MongoDB using an available Docker or Podman Compose provider |
 | `bun db:down` | Stop the local database container |
 
 ## Related repositories

@@ -9,7 +9,7 @@ async function bootstrap() {
   app.enableShutdownHooks();
 
   app.enableCors({
-    origin: process.env.PUBLIC_FRONTEND_URL,
+    origin: process.env.PUBLIC_FRONTEND_URL || 'http://localhost:5274',
     credentials: true,
   });
 
@@ -23,7 +23,7 @@ async function bootstrap() {
 
   app.useGlobalFilters(new AllExceptionsFilter());
 
-  await app.listen(process.env.PORT ?? 5002);
+  await app.listen(process.env.PORT ?? 5002, process.env.HOST || '127.0.0.1');
 }
 
 void bootstrap();

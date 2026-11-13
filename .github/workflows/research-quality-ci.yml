@@ -25,4 +25,4 @@ jobs:
       - name: Typecheck backend
         run: bunx tsc --noEmit -p apps/backend/tsconfig.json
       - name: Run research regression tests
-        run: bun run --cwd apps/backend test --runInBand --runTestsByPath src/features/research/research-insights.spec.ts src/features/github/github-parser.service.spec.ts
+        run: bun run --cwd apps/backend test --runInBand --runTestsByPath src/features/research/research-insights.spec.ts src/features/github/github-parser.service.spec.ts src/features/settings/web-data-key.store.spec.ts src/features/settings/settings.service.spec.ts

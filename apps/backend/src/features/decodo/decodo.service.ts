@@ -15,7 +15,7 @@ export class DecodoService {
 
     const config = await this.settingsService.getEffectiveConfig();
     if (!config.decodoAuthToken) {
-      throw new BadRequestException('DECODO_AUTH_TOKEN must be configured.');
+      throw new BadRequestException('Web Data API key is missing. Add it in Settings or set DECODO_WEB_DATA_API_KEY.');
     }
 
     const response = await fetch(config.decodoScraperEndpoint, {

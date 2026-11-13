@@ -1,4 +1,4 @@
-import { IsIn, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsIn, IsOptional, IsString, MaxLength } from 'class-validator';
 
 export class UpdateSettingsDto {
   @IsOptional()
@@ -8,4 +8,13 @@ export class UpdateSettingsDto {
   @IsOptional()
   @IsString()
   model?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(4096)
+  webDataApiKey?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  clearWebDataApiKey?: boolean;
 }

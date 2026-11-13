@@ -56,7 +56,7 @@ describe('DecodoService', () => {
     } as unknown as SettingsService;
     service = new DecodoService(settingsService);
 
-    await expect(service.scrapeUrl(githubUrl)).rejects.toThrow('DECODO_AUTH_TOKEN must be configured.');
+    await expect(service.scrapeUrl(githubUrl)).rejects.toThrow('Web Data API key is missing. Add it in Settings or set DECODO_WEB_DATA_API_KEY.');
     expect(fetchSpy).not.toHaveBeenCalled();
   });
 });

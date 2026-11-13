@@ -8,3 +8,6 @@ coverage/
 .claude/
 
 apps/backend/debug/
+
+# Locally saved Web Data API credentials
+apps/backend/.local/
