@@ -215,6 +215,17 @@ Keyword research can use:
 
 The LLM analyzes the normalized repository data and returns a research summary, recurring themes, notable repositories, and historical comparisons when previous matching runs exist.
 
+### Research accuracy improvements
+
+- **Evidence-backed themes.** Each reported theme must have exact quotes from at least two current repositories and name its supporting repositories. The tool returns up to three themes and may return none rather than inventing connections.
+- **Standout Trending activity.** Deterministic checks highlight dominant rolling period-star figures and unusually large changes in the rolling metric between saved snapshots. These are not the number of new stars earned between runs.
+- **Recurring name clusters.** Terms shared by at least three repository names can be reported independently of the LLM, without claiming a shared cause.
+- **More complete source data.** GitHub search attempts a second page when the first is full. Missing topics, descriptions, and fork counts can be filled by scraping a bounded subset of repository pages, while failures do not prevent the main report.
+- **More dependable comparisons.** Historical runs are matched by research configuration, and overlapping repository counts and measured deltas are computed outside the LLM. Short comparison windows are described as diagnostic, not durable trends.
+- **Richer exports.** The UI and Markdown reports include the standalone signals, name clusters, supported themes, and historical comparisons.
+
+Metadata enrichment can add up to six Web Data API requests per run by default. Set `GITHUB_METADATA_ENRICH_LIMIT=0` to disable it, or use a value between 1 and 12 to control the maximum number of additional repository requests. Pagination may add one more request in search-based modes.
+
 ## Track GitHub repository research over time
 
 Any research configuration can be saved as a recurring monitor.
@@ -260,6 +271,7 @@ The comparison describes each product's main workflow. These tools solve overlap
 | `MONGODB_URI` | MongoDB connection string |
 | `DECODO_AUTH_TOKEN` | Decodo Web Data API key, without the `Bearer` prefix |
 | `DECODO_SCRAPER_ENDPOINT` | Decodo scraping endpoint. The included default is normally sufficient |
+| `GITHUB_METADATA_ENRICH_LIMIT` | Optional maximum repository-page metadata enrichment requests per run (default: 6; maximum: 12; 0 disables) |
 | `LLM_PROVIDER` | LLM provider: `claude`, `openai`, or `gemini` |
 | `LLM_MODEL` | Optional model override |
 | `ANTHROPIC_API_KEY` | Anthropic API key |
